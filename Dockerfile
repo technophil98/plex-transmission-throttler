@@ -1,6 +1,6 @@
 FROM python:3.11-slim as poetry
 
-RUN pip install poetry
+RUN pip install poetry poetry-plugin-export
 
 COPY poetry.lock pyproject.toml ./
 
