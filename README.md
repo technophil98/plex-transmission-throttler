@@ -1,6 +1,6 @@
 # plex-transmission-throttler
 
-A Python service handling [Tautulli Webhooks](https://tautulli.com/) to enable alt speed
+A Rust service handling [Tautulli Webhooks](https://tautulli.com/) to enable alt speed
 on [Transmission](https://transmissionbt.com/) torrent client.
 
 ## Configure it
@@ -10,10 +10,9 @@ on [Transmission](https://transmissionbt.com/) torrent client.
 `plex-transmission-throttler` requires the following env variables:
 
 ```properties
-SANIC_TRANSMISSION_HOST=<TRANSMISSION_HOST>
-SANIC_TRANSMISSION_PORT=9091
-SANIC_TRANSMISSION_USERNAME=transmission
-SANIC_TRANSMISSION_PASSWORD=<TRANSMISSION_PASSWORD>
+TRANSMISSION_URL=<TRANSMISSION_HOST>/transmission/rpc
+TRANSMISSION_USERNAME=transmission
+TRANSMISSION_PASSWORD=<TRANSMISSION_PASSWORD>
 ```
 
 You can create a `.env` file with the previous content or `export` them in your current shell.
@@ -59,11 +58,8 @@ docker run -p 8000:8000 --env-file .env ghcr.io/technophil98/plex-transmission-t
 ### Locally
 
 ```shell
-# Install poetry
-# pipx install poetry
-
-# Install deps and venv
-poetry install
-
-python plex_transmission_throttler.py
+# Export variables in .env to current shell
+set -o allexport; source .env; set +o allexport
+# Run it! Will be accessible at 'localhost:8000'
+cargo run
 ```
