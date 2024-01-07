@@ -1,9 +1,11 @@
 use std::sync::Arc;
 
+use axum::extract::rejection::JsonRejection;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde_json::json;
+use thiserror::Error;
 use tokio::sync::Mutex;
 use transmission_rpc::TransClient;
 
@@ -19,23 +21,27 @@ impl AppState {
     }
 }
 
-pub(crate) struct AppError(anyhow::Error);
+#[derive(Debug, Error)]
+pub(crate) enum AppError {
+    #[error(transparent)]
+    JsonExtractorRejection(#[from] JsonRejection),
+    #[error(transparent)]
+    Other(#[from] anyhow::Error),
+}
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({"error": format!("Something went wrong: {}", self.0)})),
-        )
-            .into_response()
-    }
-}
+        let (status, message) = match self {
+            AppError::JsonExtractorRejection(json_rejection) => {
+                (json_rejection.status(), json_rejection.body_text())
+            }
+            AppError::Other(e) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Something went wrong: {}", e),
+            ),
+        };
 
-impl<E> From<E> for AppError
-where
-    E: Into<anyhow::Error>,
-{
-    fn from(err: E) -> Self {
-        Self(err.into())
+        let json_payload = json!({"error": message });
+        (status, Json(json_payload)).into_response()
     }
 }

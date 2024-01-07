@@ -4,6 +4,7 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::{Json, Router};
+use axum_extra::extract::WithRejection;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use tower_http::trace::TraceLayer;
@@ -35,7 +36,7 @@ async fn main() -> anyhow::Result<()> {
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
 
-    tracing::debug!("listening on {}", listener.local_addr().unwrap());
+    tracing::info!("listening on {}", listener.local_addr().unwrap());
 
     axum::serve(listener, app()?).await.unwrap();
 
@@ -60,7 +61,7 @@ async fn health_check() -> impl IntoResponse {
 
 async fn webhook(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<WebhookPayload>,
+    WithRejection(Json(payload), _): WithRejection<Json<WebhookPayload>, AppError>,
 ) -> Result<Json<Value>, AppError> {
     let action = payload.action;
     let stream_location = payload.stream_location;

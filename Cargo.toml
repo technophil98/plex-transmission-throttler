@@ -22,3 +22,5 @@ http-body-util = "0.1.0"
 serde = { version = "1.0.195", features = ["derive"] }
 serde-enum-str = "0.4.0"
 strum = { version = "0.25.0", features = ["derive"]}
+axum-extra = "0.9.1"
+thiserror = "1.0.56"
