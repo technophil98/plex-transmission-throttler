@@ -1,10 +1,12 @@
 use std::env;
 
 use anyhow::{anyhow, Context};
+use async_trait::async_trait;
 use transmission_rpc::types::{BasicAuth, SessionSetArgs};
 use transmission_rpc::TransClient;
 
-pub trait TransmissionClient {
+#[async_trait]
+pub trait TransmissionClient: Send {
     async fn enable_transmission_alt_speed(&mut self) -> anyhow::Result<()>;
     async fn disable_transmission_alt_speed(&mut self) -> anyhow::Result<()>;
 }
@@ -26,6 +28,7 @@ pub fn new_transmission_client() -> anyhow::Result<TransClient> {
     Ok(client)
 }
 
+#[async_trait]
 impl TransmissionClient for TransClient {
     async fn enable_transmission_alt_speed(&mut self) -> anyhow::Result<()> {
         set_transmission_alt_speed(self, true)
@@ -52,4 +55,21 @@ pub async fn set_transmission_alt_speed(
         .await
         .map(|_| ())
         .map_err(|e| anyhow!(e))
+}
+
+pub(super) struct MockTransmissionClient;
+
+#[async_trait]
+impl TransmissionClient for MockTransmissionClient {
+    async fn enable_transmission_alt_speed(&mut self) -> anyhow::Result<()> {
+        tracing::debug!("enable_transmission_alt_speed");
+
+        Ok(())
+    }
+
+    async fn disable_transmission_alt_speed(&mut self) -> anyhow::Result<()> {
+        tracing::debug!("disable_transmission_alt_speed");
+
+        Ok(())
+    }
 }

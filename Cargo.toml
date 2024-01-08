@@ -24,3 +24,8 @@ serde-enum-str = "0.4.0"
 strum = { version = "0.25.0", features = ["derive"]}
 axum-extra = "0.9.1"
 thiserror = "1.0.56"
+async-trait = "0.1.77"
+
+[dev-dependencies]
+rstest = "0.18.2"
+assertables = "7.0.1"

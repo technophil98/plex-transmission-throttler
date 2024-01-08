@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::transmission::TransmissionClient;
 use axum::extract::rejection::JsonRejection;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -10,7 +11,7 @@ use tokio::sync::Mutex;
 use transmission_rpc::TransClient;
 
 pub(crate) struct AppState {
-    pub transmission_client: Arc<Mutex<TransClient>>,
+    pub transmission_client: Arc<Mutex<dyn TransmissionClient>>,
 }
 
 impl AppState {
